@@ -1,0 +1,21 @@
+---
+import { BarChart3 } from 'lucide-react';
+
+import ContactForm from '@/components/ContactForm';
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Andrea Castro | Contact">
+  <section class="my-14 flex flex-col justify-center items-center">
+    <BarChart3 size={50} className='mb-2' />
+    <h1 class="text-4xl sm:text-6xl font-semibold text-center">
+      Thank You
+    </h1>
+    <h3 class="text-xl sm:text-2xl text-center text-neutral-500 mt-2">
+      for your interest
+    </h3>
+  </section>
+  <section class="mx-auto w-full max-w-3xl mt-20">
+    <ContactForm client:load />
+  </section>
+</Layout>

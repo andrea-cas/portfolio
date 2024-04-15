@@ -1,0 +1,100 @@
+---
+import { BarChart3 } from 'lucide-react';
+import { FaPython } from "react-icons/fa";
+import { GrMysql } from "react-icons/gr";
+import { SiPandas, SiNumpy } from "react-icons/si";
+import { GiRadarCrossSection } from "react-icons/gi"
+import { VscGraphScatter } from "react-icons/vsc";
+import { PiMicrosoftExcelLogoFill } from "react-icons/pi";
+import { MdDashboardCustomize } from "react-icons/md";
+
+import Layout from "../layouts/Layout.astro";
+import SkillCard from '@/components/SkillCard';
+import { PortfolioCarousel } from '@/components/PortfolioCarousel';
+import { contentfulClient, type AssetCustom, type Project } from '@/lib/contentful';
+
+const entries = await contentfulClient.getEntries<Project>({
+  content_type: "project",
+});
+
+const projects = entries.items.map((item) => {
+  const { title, shortDescription, coverImage, slug } = item.fields;
+
+  return { 
+		title, 
+		shortDescription, 
+		coverImage: (coverImage as AssetCustom).fields.file.url, 
+		slug
+  };
+});
+
+const skills = [
+  {
+    name: 'Python',
+    icon: FaPython,
+  },
+  {
+    name: 'MySQL',
+    icon: GrMysql
+  },
+  {
+    name: 'Pandas',
+    icon: SiPandas,
+  },
+  {
+    name: 'Numpy',
+    icon: SiNumpy,
+  },
+  {
+    name: 'Matplotlib',
+    icon: GiRadarCrossSection,
+  },
+  {
+    name: 'Seaborn',
+    icon: VscGraphScatter,
+  },
+  {
+    name: 'Excel',
+    icon: PiMicrosoftExcelLogoFill,
+  },
+  {
+    name: 'IBM Cognos',
+    icon: MdDashboardCustomize,
+  },
+];
+---
+
+<Layout title="Andrea Castro | Home">
+  <section class="my-14 flex flex-col justify-center items-center">
+    <BarChart3 size={50} className='mb-2' />
+    <h1 class="text-4xl sm:text-6xl font-semibold text-center">
+      Andrea Castro
+    </h1>
+    <h3 class="text-xl sm:text-2xl text-center text-neutral-500 mt-2">
+      Data Analyst <span aria-label="Rocket Emoji">🚀</span>
+    </h3>
+  </section>
+  <section class="container mx-auto py-14 max-w-3xl">
+    <h2 class="font-semibold text-2xl text-center">About Me</h2>
+    <p class="text-center text-lg mt-2 text-neutral-500">
+      As an industrial engineer transitioning into data analysis, I bring a unique blend of analytical skills and problem-solving expertise to the table. With a passion for uncovering insights and optimizing processes, I leverage my engineering background to drive data-driven decision-making. 
+    </p>
+    <p class="text-center text-lg mt-3 text-neutral-500">
+      Proficient in various data analysis tools and techniques, I am committed to delivering actionable insights that drive organizational success. Eager to apply my expertise to tackle diverse challenges and make a meaningful impact in the field of data analysis.
+    </p>
+  </section>
+  <section class="container mx-auto mt-20">
+    <h2 class="font-semibold text-2xl text-center mb-4">My Skills</h2>
+    <ul
+      class="grid grid-cols-3 gap-5 md:grid-cols-4"
+    >
+      {skills.map(skill => (
+        <SkillCard name={skill.name} icon={skill.icon} />
+      ))}
+    </ul>
+  </section>
+  <section class="container mx-auto mt-20">
+    <h2 class="font-semibold text-2xl text-center mb-4">My Projects</h2>
+    <PortfolioCarousel data={projects} client:load />
+  </section>
+</Layout>

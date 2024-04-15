@@ -1,0 +1,127 @@
+---
+import type { Asset, UnresolvedLink } from 'contentful';
+
+import { contentfulClient, type AssetCustom, type Project } from "@/lib/contentful";
+import Layout from "../../layouts/Layout.astro";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Image } from 'astro:assets';
+import { PortfolioCarousel } from '@/components/PortfolioCarousel';
+import LinkButton from '@/components/LinkButton';
+import { EyeIcon, GithubIcon, SearchCheckIcon } from 'lucide-react';
+
+interface ProjectProps {
+    title: string;
+    shortDescription: string;
+    coverImage: string;
+    slug: string;
+};
+
+interface PageProps {
+	fields: {
+		slug: string;
+    title: string;
+    coverImage: UnresolvedLink<"Asset"> | Asset<undefined, string>;
+    // images: (UnresolvedLink<"Asset"> | Asset<undefined, string>)[];
+		technologies: {
+      name: string,
+      description: string,
+    }[];
+		shortDescription: string,
+		longDescription: string,
+		codeLink: string,
+		notebookLink: string,
+	},
+	image: Asset<undefined, string>,
+	projects: ProjectProps[],
+}
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const { items } = await contentfulClient.getEntries<Project>({
+    content_type: "project",
+  });
+	const projects = items.map((item) => {
+  	const { title, shortDescription, coverImage, slug } = item.fields;
+
+		return { 
+			title, 
+			shortDescription, 
+			coverImage: (coverImage as AssetCustom).fields.file.url,
+			slug
+		} as ProjectProps;
+	});
+  const pages = items.map((item) => ({
+    params: { slug: item.fields.slug },
+    props: {
+      fields: item.fields,
+			image: item.fields.coverImage,
+			projects,
+    },
+  }));
+  return pages;
+}
+
+const { image, fields, projects } = (Astro.props as unknown) as PageProps;
+---
+
+<Layout title={'Andrea Castro | ' + fields?.title}>
+  <section class="px-2 sm:px-12 mb-8 max-w-4xl w-full mx-auto" transition:animate="slide">
+    <h1 class="text-3xl md:text-5xl text-center font-semibold" transition:name="project-title">
+      {fields?.title ? fields?.title : (
+        <Skeleton className="w-full h-12 rounded-md" />
+      )}
+    </h1>
+    {image ? <Image
+      src={image?.fields?.file?.url!}
+      alt={fields?.title}
+      class="h-full w-full object-cover object-center max-w-[700px]"
+      width={300}
+      height={300}
+    /> : (
+      <Skeleton className="w-full h-40 rounded-md" />
+    )}
+    <p class="text-center mt-5 md:text-lg text-neutral-500">{fields?.shortDescription}</p>
+    <div class="w-full max-w-2xl text-center mx-auto space-y-6 text-lg mt-20">
+      <h2 class="text-xl md:text-3xl text-center mb-5 font-medium">What Is This Project About?</h2>
+      <p
+        class="leading-loose text-neutral-600 text-justify"
+      >
+        {fields ? fields.longDescription : (
+          <Skeleton className="w-full max-w-[300px] h-20 rounded-md" />
+        )}
+      </p>
+    </div>
+    <div class="w-full max-w-2xl text-center mx-auto space-y-6 text-lg mt-20">
+      <h2 class="text-xl md:text-3xl text-center mb-8 font-medium">Technologies</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+				{fields.technologies.map((item) => (
+					<div class="flex flex-col justify-start items-center">
+						<span class="bg-neutral-800/10 border-neutral-800 border-2 rounded-md p-2">
+							<SearchCheckIcon className='text-neutral-800' size={30} />	
+						</span>
+            <p class="text-lg md:text-xl mb-2 mt-4 font-medium">{item.name}</p>
+						<p class="md:text-lg">{item.description}</p>
+					</div>
+				))}
+			</div>
+    </div>
+    <section class="w-full max-w-2xl text-center mx-auto space-y-6 text-lg mt-20">
+      <h2 class="text-xl md:text-3xl text-center mb-5 font-medium">Want To See More About This Project?</h2>
+			<div class="flex md:flex-row flex-col gap-y-4 md:gap-x-4 w-full mt-5">
+				<LinkButton client:load type='code' url={fields.codeLink}>
+					<GithubIcon className='mr-2' size={20} />
+					See The Code
+				</LinkButton>
+				<LinkButton client:load type='demo' url={fields.notebookLink}>
+					<EyeIcon className='mr-2' size={20} />
+					See The Notebook
+				</LinkButton>
+			</div>
+		</section>
+    <div class="pt-20">
+      <h2 class="text-xl md:text-3xl text-center mb-5 font-medium">Other Projects</h2>
+      <PortfolioCarousel data={projects} client:load />
+    </div>
+  </section>
+</Layout>
