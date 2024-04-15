@@ -20,9 +20,9 @@ const { title } = Astro.props;
     </head>
     <body class="flex flex-col h-full min-h-screen">
         <Header />
-        <Toaster client:load />
         <main class="pt-12 mx-auto flex-grow">
             <slot />
+            <Toaster client:load />
         </main>
         <footer
             class="w-screen p-4 rounded-t-lg rounded-r-lg shadow md:p-6 dark:bg-gray-800 mt-20"

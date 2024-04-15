@@ -55,6 +55,7 @@ const ContactForm = () => {
       })
 
       toast.success("Successfully sent!");
+      form.reset();
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong.");
