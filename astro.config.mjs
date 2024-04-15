@@ -1,14 +1,13 @@
-import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify/functions';
-import tailwind from "@astrojs/tailwind";
-
+import { defineConfig, passthroughImageService } from 'astro/config';
 import react from "@astrojs/react";
+import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'server',
-  adapter: netlify(),
-  integrations: [tailwind({
+  integrations: [react(), tailwind({
     applyBaseStyles: false,
-  }), react()]
+  })],
+  image: {
+    service: passthroughImageService(),
+  }
 });
